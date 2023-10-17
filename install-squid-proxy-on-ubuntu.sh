@@ -8,55 +8,28 @@ check_success() {
     fi
 }
 
-# Update and upgrade the system
-sudo apt update && sudo apt upgrade -y
-check_success
-
 # Install TinyProxy
-sudo apt install tinyproxy -y
+sudo apt-get install tinyproxy -y
 check_success
 
-# Modify the TinyProxy configuration to allow all IP addresses, set the port,
-# specify the user and group under which TinyProxy will run,
-# set the maximum number of clients, and set the number of servers to start
-sudo bash -c "cat > /etc/tinyproxy/tinyproxy.conf" << EOL
-User tinyproxy
-Group tinyproxy
-Port 8888
-Allow 0.0.0.0/0
-MaxClients 100
-StartServers 10
-EOL
+# Modify the TinyProxy configuration to allow your IP subnet
+# Replace "123.456.789.1/24" with your actual IP subnet
+echo "Allow 84.106.129.108/32" | sudo tee -a /etc/tinyproxy/tinyproxy.conf
 check_success
 
-# Create the tinyproxy user and group, if they don't already exist
-if ! id -u tinyproxy >/dev/null 2>&1; then
-    sudo addgroup --system tinyproxy
-    sudo adduser --system --no-create-home --ingroup tinyproxy tinyproxy
-fi
+# Add a new crontab to restart TinyProxy daily at 10pm
+# Note: This script assumes that the user has permission to edit the crontab without needing the 'root' user.
+(crontab -l 2>/dev/null; echo "0 22 * * * service tinyproxy restart") | crontab -
 check_success
 
-# Create a custom systemd service file for TinyProxy
-sudo bash -c "cat > /etc/systemd/system/tinyproxy.service" << EOL
-[Unit]
-Description=Tinyproxy lightweight HTTP Proxy
-After=network.target
-
-[Service]
-User=tinyproxy
-Group=tinyproxy
-ExecStart=/usr/sbin/tinyproxy -d
-
-[Install]
-WantedBy=multi-user.target
-EOL
+# Open port 8888
+sudo /sbin/iptables -I INPUT -p tcp --dport 8888 -m state --state NEW,ESTABLISHED -j ACCEPT
+sudo /sbin/iptables -I OUTPUT -p tcp --sport 8888 -m state --state ESTABLISHED -j ACCEPT
 check_success
 
-# Reload systemd to recognize the new service file, then start TinyProxy
-sudo systemctl daemon-reload
+# Restart TinyProxy
+sudo service tinyproxy stop
+sudo service tinyproxy start
 check_success
 
-sudo systemctl start tinyproxy
-check_success
-
-echo "Proxy setup completed. Configure your applications to use the proxy at $(curl -s ifconfig.me):8888"
+echo "TinyProxy setup completed. Your proxy is now running on port 8888."
