@@ -1,4 +1,6 @@
 How to use:
 
-wget https://raw.githubusercontent.com/serverok/squid-proxy-installer/master/squid3-install.sh -O squid3-install.sh
-sudo bash squid3-install.sh
+wget https://raw.githubusercontent.com/davyraittdevelops/setup_ec2_squid_proxy/main/install-squid-proxy-on-ubuntu.sh -O install-squid-proxy-on-ubuntu.sh
+sudo bash install-squid-proxy-on-ubuntu.sh
+
+
