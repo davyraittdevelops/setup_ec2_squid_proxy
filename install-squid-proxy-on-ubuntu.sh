@@ -1,34 +1,28 @@
 #!/bin/bash
 
-# Step 1: Update System
-sudo apt-get update && sudo apt-get upgrade -y
+# Function to check if a command was successful
+check_success() {
+    if [[ $? -ne 0 ]]; then
+        echo "An error occurred. Exiting."
+        exit 1
+    fi
+}
 
-# Step 2: Install Squid and Apache Utils
-sudo apt-get install -y squid apache2-utils
+# Update and upgrade the system
+sudo apt update && sudo apt upgrade -y
+check_success
 
-# Step 3: Backup Original Configuration
-sudo cp /etc/squid/squid.conf /etc/squid/squid.conf.original
+# Install TinyProxy
+sudo apt install tinyproxy -y
+check_success
 
-# Step 4: Ask for Username and Password
-read -p "Enter a username for the proxy: " proxy_username
-read -sp "Enter a password for the proxy: " proxy_password
-echo # Newline for better formatting
+# Modify the TinyProxy configuration to allow your IP
+# Replace "your_ip_address" with your actual IP address
+echo "Allow your_ip_address" | sudo tee -a /etc/tinyproxy/tinyproxy.conf
+check_success
 
-# Step 5: Create User for Proxy Authentication
-echo $proxy_password | sudo htpasswd -i -c /etc/squid/passwords $proxy_username
+# Restart TinyProxy to apply the changes
+sudo /etc/init.d/tinyproxy restart
+check_success
 
-# Step 6: Configure Squid to require authentication
-auth_configuration="\
-auth_param basic program /usr/lib/squid/basic_ncsa_auth /etc/squid/passwords\n\
-auth_param basic realm proxy\n\
-acl authenticated proxy_auth REQUIRED\n\
-http_access allow authenticated\n\
-http_port 3128"
-echo -e $auth_configuration | sudo tee /etc/squid/squid.conf
-
-# Step 7: Start and Enable Squid
-sudo systemctl start squid
-sudo systemctl enable squid
-
-# Step 8: Set Up Firewall Rules
-sudo ufw allow 3128/tcp
+echo "Proxy setup completed. Configure your applications to use the proxy at $(curl -s ifconfig.me):8888"
