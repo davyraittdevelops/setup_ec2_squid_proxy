@@ -18,9 +18,13 @@ check_success
 
 # Modify the TinyProxy configuration to allow your IP
 # Replace "your_ip_address" with your actual IP address
-echo "Allow 0.0.0.0/0" | sudo tee /etc/tinyproxy/tinyproxy.conf
+sudo bash -c "cat > /etc/tinyproxy/tinyproxy.conf" << EOL
+User nobody
+Group nogroup
+Port 8888
+Allow 0.0.0.0/0
+EOL
 check_success
-
 # Restart TinyProxy to apply the changes
 sudo /etc/init.d/tinyproxy restart
 check_success
