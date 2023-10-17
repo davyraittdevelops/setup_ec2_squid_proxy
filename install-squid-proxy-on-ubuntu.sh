@@ -9,8 +9,8 @@ sudo apt-get install -y squid
 # Step 3: Backup Original Configuration
 sudo cp /etc/squid/squid.conf /etc/squid/squid.conf.original
 
-# Step 4: Configure Squid
-echo -e "http_port 3128\nacl localnet src 192.168.0.0/16\nhttp_access allow localnet\nhttp_access deny all" | sudo tee /etc/squid/squid.conf
+# Step 4: Configure Squid to allow all connections
+echo -e "http_port 3128\nhttp_access allow all" | sudo tee /etc/squid/squid.conf
 
 # Step 5: Start and Enable Squid
 sudo systemctl start squid
