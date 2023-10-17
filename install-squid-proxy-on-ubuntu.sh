@@ -18,7 +18,7 @@ check_success
 
 # Modify the TinyProxy configuration to allow your IP
 # Replace "your_ip_address" with your actual IP address
-echo "Allow your_ip_address" | sudo tee -a /etc/tinyproxy/tinyproxy.conf
+echo "Allow 0.0.0.0/0" | sudo tee /etc/tinyproxy/tinyproxy.conf
 check_success
 
 # Restart TinyProxy to apply the changes
