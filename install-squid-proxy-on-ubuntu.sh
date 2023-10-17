@@ -23,6 +23,7 @@ User nobody
 Group nogroup
 Port 8888
 Allow 0.0.0.0/0
+MaxClients 2
 EOL
 check_success
 # Restart TinyProxy to apply the changes
