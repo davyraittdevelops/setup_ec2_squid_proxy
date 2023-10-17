@@ -12,6 +12,6 @@ How to use:
 - Allow port 3128 in the security group incoming rules
   
 
-- You now have a proxy, which you can use as public:3128
+- You now have a proxy, which you can use as publicIpOfEC2:3128
 
 
